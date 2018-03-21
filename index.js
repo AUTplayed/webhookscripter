@@ -14,7 +14,7 @@ app.post("/*", (req, res) => {
 	if (req.query && req.query.script && auth(req.query.pw)) {
 		var script = req.query.script;
 		if (fs.existsSync(pj(pj(__dirname, "scripts"), script))) {
-			execute(script, res);
+			execute(script, req, res);
 		} else {
 			send(req, res);
 		}
@@ -37,7 +37,7 @@ function send(req, res) {
 	});
 }
 
-function execute(script, res) {
+function execute(script, req, res) {
 	script = "scripts/" + script;
 	if (req.query.args) script += " " + req.query.args;
 	console.log(script);
