@@ -2,6 +2,8 @@ const express = require("express");
 const app = express();
 const bodyparser = require("body-parser");
 const request = require("request");
+const fs = require("fs");
+const pj = require("path").join;
 const exec = require("child_process").exec;
 require("dotenv").config();
 const nexturl = process.env.url;
@@ -11,13 +13,17 @@ app.use(bodyparser.json());
 app.post("/*", (req, res) => {
 	if (req.query && req.query.script) {
 		var script = req.query.script;
-		script = "scripts/" + script;
-		if (req.query.args) script += " " + req.query.args;
-		console.log(script);
-		exec(script, (err, stdout, stderr) => {
-			req.body.extra = stdout;
+		if (fs.existsSync(pj(pj(__dirname, "scripts"), script))) {
+			script = "scripts/" + script;
+			if (req.query.args) script += " " + req.query.args;
+			console.log(script);
+			exec(script, (err, stdout, stderr) => {
+				req.body.extra = stdout;
+				send(req, res);
+			});
+		} else {
 			send(req, res);
-		});
+		}
 	} else {
 		send(req, res);
 	}
