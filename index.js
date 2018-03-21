@@ -11,16 +11,10 @@ const nexturl = process.env.url;
 app.use(bodyparser.json());
 
 app.post("/*", (req, res) => {
-	if (req.query && req.query.script) {
+	if (req.query && req.query.script && auth(req.query.pw)) {
 		var script = req.query.script;
 		if (fs.existsSync(pj(pj(__dirname, "scripts"), script))) {
-			script = "scripts/" + script;
-			if (req.query.args) script += " " + req.query.args;
-			console.log(script);
-			exec(script, (err, stdout, stderr) => {
-				req.body.extra = stdout;
-				send(req, res);
-			});
+			execute(script, res);
 		} else {
 			send(req, res);
 		}
@@ -41,6 +35,21 @@ function send(req, res) {
 	request.post(postdata, (err, resp, body) => {
 		res.sendStatus(resp.statusCode);
 	});
+}
+
+function execute(script, res) {
+	script = "scripts/" + script;
+	if (req.query.args) script += " " + req.query.args;
+	console.log(script);
+	exec(script, (err, stdout, stderr) => {
+		req.body.extra = stdout;
+		send(req, res);
+	});
+
+}
+
+function auth(pw) {
+	return process.env.pw == pw;
 }
 
 app.listen(process.env.PORT || 6006);
