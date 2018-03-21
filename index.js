@@ -11,6 +11,7 @@ const nexturl = process.env.url;
 app.use(bodyparser.json());
 
 app.post("/*", (req, res) => {
+	res.sendStatus(200);
 	if (req.query && req.query.script && auth(req.query.pw)) {
 		var script = req.query.script;
 		if (fs.existsSync(pj(pj(__dirname, "scripts"), script))) {
@@ -33,7 +34,7 @@ function send(req, res) {
 	postdata.body = JSON.stringify(req.body);
 	console.log(postdata.url);
 	request.post(postdata, (err, resp, body) => {
-		res.sendStatus(resp.statusCode);
+		console.log("posted");
 	});
 }
 
